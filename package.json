@@ -1,0 +1,28 @@
+{
+  "name": "never-zero",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Never Zero: a daily habit tracker where Main earns 100% and Minimum earns 25%, and both keep your streak alive.",
+  "scripts": {
+    "build": "node build.js --pwa",
+    "build:artifact": "node build.js",
+    "assets": "node tools/make-assets.js",
+    "release": "node build.js --pwa && node tools/release.js",
+    "serve": "cd dist && python3 -m http.server 8765",
+    "test:logic": "TZ=Pacific/Honolulu node tests/logic.test.js",
+    "test:layout": "node tests/e2e-layout.js",
+    "test:pwa": "node tests/e2e-pwa.js",
+    "test:e2e": "PWA=1 node tests/e2e.js"
+  },
+  "devDependencies": {
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "esbuild": "^0.28.2",
+    "playwright": "^1.50.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "preact": "^11.1.0"
+  }
+}

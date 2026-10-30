@@ -1,13 +1,20 @@
 {
+  "id": "./",
   "name": "Never Zero",
   "short_name": "Never Zero",
-  "description": "Progress over perfection. Consistency over excuses.",
+  "description": "Never Zero is a daily habit tracker. Complete your Main habit for full credit or Minimum Mode for 25%. Both keep your streak alive.",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#090F15",
   "theme_color": "#090F15",
+  "categories": [
+    "health",
+    "lifestyle",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icon-192.png",
@@ -22,7 +29,7 @@
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

@@ -1,0 +1,35 @@
+const { chromium } = require('playwright');
+let fails = 0; const ok = (c, m) => { if (c) console.log('PASS', m); else { fails++; console.log('FAIL', m); } };
+(async () => {
+  const b = await chromium.launch();
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'Pacific/Honolulu' });
+    const page = await ctx.newPage();
+  const errs = []; page.on('pageerror', (e) => errs.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+  await page.goto('http://localhost:8765/'); await page.waitForSelector('.welcome');
+  const man = await (await page.request.get('http://localhost:8765/manifest.webmanifest')).json();
+  ok(man.display === 'standalone' && man.icons.length === 3 && man.icons.some((i) => i.purpose === 'maskable') && man.start_url === './', 'manifest is standalone with icons');
+  for (const f of ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'og.png', 'sw.js', 'splash/1170x2532.png', 'fonts/barlow-latin-600-normal.woff2']) ok((await page.request.get('http://localhost:8765/' + f)).ok(), f + ' served');
+  ok(await page.evaluate(() => !!document.querySelector('link[rel=apple-touch-icon]') && document.querySelector('meta[name=apple-mobile-web-app-capable]').content === 'yes'), 'iOS home-screen meta tags present');
+  ok(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('800 20px "Barlow Condensed"') && document.fonts.check('700 16px Barlow'); }), 'self-hosted fonts load with no network');
+  ok(!errs.some((e) => /Content Security Policy|Refused/i.test(e)), 'no CSP violations');
+  const reg = await page.evaluate(async () => { const r = await navigator.serviceWorker.ready; return !!r.active; });
+  ok(reg, 'service worker active');
+  await page.waitForTimeout(500);
+  ok(await page.evaluate(async () => (await caches.keys()).length > 0 && !!(await caches.match('./index.html'))), 'app shell cached');
+  // create a habit, then go offline and reload
+  await page.click('text=CREATE YOUR FIRST HABIT');
+  await page.fill('#f-name', 'Gym'); await page.fill('#f-main', 'Workout'); await page.fill('#f-min', 'Push-ups');
+  await page.click('.sheet button[type=submit]'); await page.waitForSelector('.hc');
+  await page.locator('.hc .opt.main').click();
+  await page.waitForTimeout(600);
+  ok((await page.locator('.chip-s').first().innerText()).includes('Saved on this device'), 'chip says Saved on this device');
+  await ctx.setOffline(true);
+  await page.reload(); await page.waitForSelector('.nav', { timeout: 8000 });
+  ok(await page.locator('.hc .opt.main.on').count() === 1, 'offline reload: app loads and IndexedDB data is intact');
+  await page.click('.nav >> text=Habits');
+  ok((await page.locator('.datac').innerText()).includes('inside the app'), 'data panel explains on-phone storage');
+  ok(await page.evaluate(async () => { const r = await new Promise((res) => { const q = indexedDB.open('neverzero'); q.onsuccess = () => res(q.result); }); return r.objectStoreNames.contains('kv'); }), 'data lives in IndexedDB');
+  await ctx.setOffline(false);
+  ok(errs.length === 0, 'no page errors' + (errs.length ? ': ' + errs.join('|') : ''));
+  await b.close(); console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); process.exit(fails ? 1 : 0);
+})().catch((e) => { console.error(e); process.exit(2); });
