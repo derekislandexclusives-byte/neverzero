@@ -225,6 +225,7 @@ function DisplayInfo({ onClose }) {
     const dm = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
     setRows([
       ['Window', window.innerWidth + ' x ' + window.innerHeight],
+      ['Phone', (navigator.userAgent.match(/OS ([0-9_]+)/) || [])[1] || navigator.userAgent.slice(0, 60)],
       ['Visual viewport', vv ? Math.round(vv.width) + ' x ' + Math.round(vv.height) + ' (offset ' + Math.round(vv.offsetTop) + ')' : 'n/a'],
       ['Screen', window.screen.width + ' x ' + window.screen.height + ' (avail ' + window.screen.availHeight + ')'],
       ['Document', document.documentElement.clientWidth + ' x ' + document.documentElement.clientHeight],
@@ -929,15 +930,15 @@ class ErrorBoundary extends React.Component {
 ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><App /></ErrorBoundary>);
 if (__PWA__) {
   document.documentElement.classList.add('pwa');
-  /* iPhone Home Screen apps can lay the page out shorter than the screen, leaving an empty band under the tab bar.
-     When that happens (portrait, installed app, short by 16-140 px), size the page to the full screen height. */
+  /* Some iPhones give an installed app less height than the screen, with the home-indicator area unusable below it.
+     In that case (portrait, installed, short by 16-140 px) mark the page "short" so the tab bar sits flush at the
+     bottom of the space the phone actually shows, instead of reserving safe-area padding that is not there. */
   const fit = () => {
     const root = document.documentElement;
     const standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
     const portrait = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches : true;
     const gap = window.screen.height - root.clientHeight;
-    if (standalone && portrait && gap > 16 && gap < 140) { root.style.setProperty('--app-h', window.screen.height + 'px'); root.classList.add('fit'); }
-    else { root.classList.remove('fit'); }
+    if (standalone && portrait && gap > 16 && gap < 140) root.classList.add('short'); else root.classList.remove('short');
   };
   fit();
   ['resize', 'orientationchange', 'pageshow', 'visibilitychange', 'focus'].forEach((ev) => window.addEventListener(ev, fit));

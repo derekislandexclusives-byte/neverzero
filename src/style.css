@@ -28,7 +28,7 @@ h1, h2, p { margin: 0; }
 .app input, .app textarea { -webkit-user-select: text; user-select: text; }
 .pwa html, html.pwa { overscroll-behavior: none; }
 .pwa body { position: fixed; inset: 0; width: 100%; overflow: hidden; overscroll-behavior: none; }
-.pwa.fit body { bottom: auto; height: var(--app-h); }
+.pwa.short .nav { padding-bottom: 4px; }
 .screen { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;
   padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 18px; }
 .screen-in { display: flex; flex-direction: column; gap: 10px; animation: fade .18s ease-out; }

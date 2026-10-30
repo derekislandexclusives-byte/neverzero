@@ -1,8 +1,8 @@
-/* Never Zero service worker (build 19bbb36e).
+/* Never Zero service worker (build 76ea0748).
    App files are cached so the app opens instantly and works offline.
    Pages try the network for up to 2.5 s, then fall back to the cached copy, so updates arrive on the next launch. */
-const CACHE = 'nz-19bbb36e';
-const PRECACHE = ["./","index.html","app.19bbb36e.js","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","fonts/barlow-latin-500-normal.woff2","fonts/barlow-latin-600-normal.woff2","fonts/barlow-latin-700-normal.woff2","fonts/barlow-condensed-latin-700-normal.woff2","fonts/barlow-condensed-latin-800-normal.woff2","fonts/barlow-condensed-latin-800-italic.woff2"];
+const CACHE = 'nz-76ea0748';
+const PRECACHE = ["./","index.html","app.76ea0748.js","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","fonts/barlow-latin-500-normal.woff2","fonts/barlow-latin-600-normal.woff2","fonts/barlow-latin-700-normal.woff2","fonts/barlow-condensed-latin-700-normal.woff2","fonts/barlow-condensed-latin-800-normal.woff2","fonts/barlow-condensed-latin-800-italic.woff2"];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
 });
