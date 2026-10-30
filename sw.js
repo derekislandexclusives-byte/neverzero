@@ -1,8 +1,8 @@
-/* Never Zero service worker (build b729e207).
+/* Never Zero service worker (build 19bbb36e).
    App files are cached so the app opens instantly and works offline.
    Pages try the network for up to 2.5 s, then fall back to the cached copy, so updates arrive on the next launch. */
-const CACHE = 'nz-b729e207';
-const PRECACHE = ["./","index.html","app.b729e207.js","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","fonts/barlow-latin-500-normal.woff2","fonts/barlow-latin-600-normal.woff2","fonts/barlow-latin-700-normal.woff2","fonts/barlow-condensed-latin-700-normal.woff2","fonts/barlow-condensed-latin-800-normal.woff2","fonts/barlow-condensed-latin-800-italic.woff2"];
+const CACHE = 'nz-19bbb36e';
+const PRECACHE = ["./","index.html","app.19bbb36e.js","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","fonts/barlow-latin-500-normal.woff2","fonts/barlow-latin-600-normal.woff2","fonts/barlow-latin-700-normal.woff2","fonts/barlow-condensed-latin-700-normal.woff2","fonts/barlow-condensed-latin-800-normal.woff2","fonts/barlow-condensed-latin-800-italic.woff2"];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
 });
@@ -14,7 +14,7 @@ function pageFromNetworkOrCache(req) {
     let done = false;
     const cached = () => caches.match('index.html');
     const timer = setTimeout(() => { cached().then((r) => { if (r && !done) { done = true; resolve(r); } }); }, 2500);
-    fetch(req).then((r) => {
+    fetch(req, { cache: 'no-cache' }).then((r) => {
       clearTimeout(timer);
       if (!done) { done = true; resolve(r); }
       if (r.ok) { const copy = r.clone(); caches.open(CACHE).then((c) => c.put('index.html', copy)); }

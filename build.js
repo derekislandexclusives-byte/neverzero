@@ -9,7 +9,7 @@ const esbuild = require('esbuild');
 
 const ROOT = __dirname;
 const SRC = path.join(ROOT, 'src') + '/';
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 const SITE = 'https://derekislandexclusives-byte.github.io/neverzero/';
 const mode = process.argv.includes('--pwa') ? 'pwa' : process.argv.includes('--local') ? 'local' : 'artifact';
 
@@ -168,7 +168,7 @@ function pageFromNetworkOrCache(req) {
     let done = false;
     const cached = () => caches.match('index.html');
     const timer = setTimeout(() => { cached().then((r) => { if (r && !done) { done = true; resolve(r); } }); }, 2500);
-    fetch(req).then((r) => {
+    fetch(req, { cache: 'no-cache' }).then((r) => {
       clearTimeout(timer);
       if (!done) { done = true; resolve(r); }
       if (r.ok) { const copy = r.clone(); caches.open(CACHE).then((c) => c.put('index.html', copy)); }

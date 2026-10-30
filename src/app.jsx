@@ -929,6 +929,19 @@ class ErrorBoundary extends React.Component {
 ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><App /></ErrorBoundary>);
 if (__PWA__) {
   document.documentElement.classList.add('pwa');
+  /* iPhone Home Screen apps can lay the page out shorter than the screen, leaving an empty band under the tab bar.
+     When that happens (portrait, installed app, short by 16-140 px), size the page to the full screen height. */
+  const fit = () => {
+    const root = document.documentElement;
+    const standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    const portrait = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches : true;
+    const gap = window.screen.height - root.clientHeight;
+    if (standalone && portrait && gap > 16 && gap < 140) { root.style.setProperty('--app-h', window.screen.height + 'px'); root.classList.add('fit'); }
+    else { root.classList.remove('fit'); }
+  };
+  fit();
+  ['resize', 'orientationchange', 'pageshow', 'visibilitychange', 'focus'].forEach((ev) => window.addEventListener(ev, fit));
+  setTimeout(fit, 300); setTimeout(fit, 1200);
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) window.dispatchEvent(new Event('nz-update')); });
