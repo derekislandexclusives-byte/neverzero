@@ -9,7 +9,7 @@ const esbuild = require('esbuild');
 
 const ROOT = __dirname;
 const SRC = path.join(ROOT, 'src') + '/';
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 const SITE = 'https://derekislandexclusives-byte.github.io/neverzero/';
 const mode = process.argv.includes('--pwa') ? 'pwa' : process.argv.includes('--local') ? 'local' : 'artifact';
 

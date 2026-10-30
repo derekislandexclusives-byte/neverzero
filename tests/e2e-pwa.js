@@ -29,6 +29,10 @@ let fails = 0; const ok = (c, m) => { if (c) console.log('PASS', m); else { fail
   await page.click('.nav >> text=Habits');
   ok((await page.locator('.datac').innerText()).includes('inside the app'), 'data panel explains on-phone storage');
   ok(await page.evaluate(async () => { const r = await new Promise((res) => { const q = indexedDB.open('neverzero'); q.onsuccess = () => res(q.result); }); return r.objectStoreNames.contains('kv'); }), 'data lives in IndexedDB');
+  await page.click('text=display info'); await page.waitForSelector('.diag');
+  const diag = await page.locator('.diag').innerText();
+  ok(/Safe area/.test(diag) && /100vh/.test(diag) && /Tab bar/.test(diag) && /Build/.test(diag), 'display info panel shows viewport numbers');
+  await page.click('.sheet >> text=Done');
   await ctx.setOffline(false);
   ok(errs.length === 0, 'no page errors' + (errs.length ? ': ' + errs.join('|') : ''));
   await b.close(); console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); process.exit(fails ? 1 : 0);

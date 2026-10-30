@@ -213,6 +213,54 @@ function Confirm({ c, onClose }) {
   );
 }
 
+function DisplayInfo({ onClose }) {
+  const probe = useRef(null);
+  const [rows, setRows] = useState([]);
+  const [msg, setMsg] = useState('');
+  const measure = () => {
+    const p = probe.current; if (!p) return;
+    const q = (c) => p.querySelector('.' + c);
+    const vv = window.visualViewport;
+    const rect = (e) => (e ? Math.round(e.getBoundingClientRect().top) + ' to ' + Math.round(e.getBoundingClientRect().bottom) : 'n/a');
+    const dm = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    setRows([
+      ['Window', window.innerWidth + ' x ' + window.innerHeight],
+      ['Visual viewport', vv ? Math.round(vv.width) + ' x ' + Math.round(vv.height) + ' (offset ' + Math.round(vv.offsetTop) + ')' : 'n/a'],
+      ['Screen', window.screen.width + ' x ' + window.screen.height + ' (avail ' + window.screen.availHeight + ')'],
+      ['Document', document.documentElement.clientWidth + ' x ' + document.documentElement.clientHeight],
+      ['Body height', Math.round(document.body.getBoundingClientRect().height)],
+      ['Pixel ratio', window.devicePixelRatio],
+      ['Home Screen mode', String(window.navigator.standalone === true) + ' / ' + String(dm)],
+      ['Safe area T R B L', [q('sa-t').offsetHeight, q('sa-r').offsetWidth, q('sa-b').offsetHeight, q('sa-l').offsetWidth].join(' / ')],
+      ['100vh / dvh / svh / lvh', [q('u-vh').offsetHeight, q('u-dvh').offsetHeight, q('u-svh').offsetHeight, q('u-lvh').offsetHeight].join(' / ')],
+      ['App top to bottom', rect(document.querySelector('.app'))],
+      ['Tab bar top to bottom', rect(document.querySelector('.nav'))],
+      ['Build', APP_VERSION]
+    ]);
+  };
+  useEffect(() => {
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+  const text = rows.map((r) => r[0] + ': ' + r[1]).join('\n');
+  const copy = async () => { try { await navigator.clipboard.writeText(text); setMsg('Copied.'); } catch (e) { setMsg('Copy is blocked here. Send a screenshot instead.'); } };
+  return (
+    <Modal title="Display info" onClose={onClose}>
+      <p className="muted s">These numbers show how your phone sizes the app. A screenshot of this is enough.</p>
+      <dl className="diag">{rows.map((r) => [<dt key={r[0] + 't'}>{r[0]}</dt>, <dd key={r[0] + 'd'}>{String(r[1])}</dd>])}</dl>
+      <div className="row-btns"><button type="button" className="btn ghost" onClick={copy}>Copy</button><button type="button" className="btn lime" onClick={onClose}>Done</button></div>
+      {msg && <p className="s" role="status">{msg}</p>}
+      <div ref={probe} aria-hidden="true" className="probe">
+        <div className="sa-t" style={{ paddingTop: 'env(safe-area-inset-top)' }} /><div className="sa-r" style={{ paddingRight: 'env(safe-area-inset-right)' }} />
+        <div className="sa-b" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} /><div className="sa-l" style={{ paddingLeft: 'env(safe-area-inset-left)' }} />
+        <div className="u-vh" style={{ height: '100vh' }} /><div className="u-dvh" style={{ height: '100dvh' }} />
+        <div className="u-svh" style={{ height: '100svh' }} /><div className="u-lvh" style={{ height: '100lvh' }} />
+      </div>
+    </Modal>
+  );
+}
+
 function HabitForm({ S, edit, onSave, onClose }) {
   const h0 = edit || { name: '', main: '', min: '', category: null };
   const [f, setF] = useState({ name: h0.name, main: h0.main, min: h0.min, category: h0.category || '' });
@@ -549,7 +597,7 @@ function Habits({ S, today, demo, ui, statusChip, storeKind, saveStatus }) {
           </div>
         </>
       )}
-      <p className="muted s center ver">Never Zero v{APP_VERSION}</p>
+      <button type="button" className="linkish s ver" onClick={ui.displayInfo}>Never Zero v{APP_VERSION} · display info</button>
     </div>
   );
 }
@@ -763,6 +811,7 @@ function App() {
     restore: (id) => commitState(NZ.restoreHabit(getCur(), id, today)),
     exportData: () => setModal({ t: 'export' }),
     importData: () => setModal({ t: 'import' }),
+    displayInfo: () => setModal({ t: 'diag' }),
     startDemo: startDemo,
     reset: () => setModal({
       t: 'confirm', c: {
@@ -851,6 +900,7 @@ function App() {
           onMain={() => { const m = modal; setModal(null); if (NZ.statusOf(getCur(), m.date, m.id) !== 'main') applyPick(m.date, m.id, 'main'); }}
           onMin={() => { const m = modal; setModal(null); applyPick(m.date, m.id, 'min'); }} />
       )}
+      {modal && modal.t === 'diag' && <DisplayInfo onClose={() => setModal(null)} />}
       {modal && modal.t === 'confirm' && <Confirm c={modal.c} onClose={() => setModal(null)} />}
       {modal && modal.t === 'export' && <ExportModal S={S} canDownload={canDownload} onClose={() => setModal(null)} />}
       {modal && modal.t === 'import' && <ImportModal S={S} onClose={() => setModal(null)}

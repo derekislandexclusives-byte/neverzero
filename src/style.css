@@ -266,3 +266,12 @@ h1, h2, p { margin: 0; }
   .streakbar .lbl { letter-spacing: .04em; font-size: 10.5px; }
   .stv b { font-size: 22px; }
 }
+
+.linkish { align-self: center; background: none; border: 0; color: var(--text2); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0 10px; }
+.diag { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 7px 14px; font-size: 14px; margin: 10px 0 0; }
+.diag dt { color: var(--text2); }
+.diag dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.probe { position: fixed; left: 0; top: 0; width: 0; height: 0; overflow: visible; visibility: hidden; pointer-events: none; }
+.probe > div { position: absolute; left: 0; top: 0; width: 0; box-sizing: content-box; }
+/* If the phone leaves a strip under the app, make it match the tab bar instead of showing as a gap. */
+.pwa { background: var(--card); }
